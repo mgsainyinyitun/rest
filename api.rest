@@ -1,0 +1,19 @@
+POST  http://localhost:3000/product/add
+Content-Type: application/json
+
+{
+    "name":"Coca Colar",
+    "price":0.5
+}
+
+GET http://localhost:3000/products
+
+
+DELETE  http://localhost:3000/product/delete/8n70cmklpgr8yy1
+
+PUT http://localhost:3000/product/update/8n705m4lpgsszh6
+Content-Type: application/json
+
+{
+    "price":12.8
+}
