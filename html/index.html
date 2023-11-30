@@ -27,6 +27,24 @@
             width: 100%;
             margin-left: 1px;
         }
+
+        #getquery {
+            width: 100%;
+            color: blue;
+        }
+
+        .arrowLink{
+            border: 1px solid blue;
+            padding: 2px;
+            text-decoration: none;
+            margin-left: 5px;
+        }
+
+        .arrowLink:hover{
+            background: teal;
+            color: white;
+        }
+
     </style>
 </head>
 
@@ -35,7 +53,27 @@
         <h1>Product API Demo</h1>
 
         <h2>GET Products</h2>
+
+
+        <label for="sortBy">Sort By : </label>
+        <select id="sortBy">
+            <option value="name">Name</option>
+            <option value="createdAt" selected>Date</option>
+            <option value="price">Price</option>
+        </select> <br /><br />
+
+        <label for="ascending">Ascending</label>
+        <input type="radio" name="order" id="ascending" value="asc">
+        <label for="descending">Descending</label>
+        <input type="radio" name="order" id="descending" value="desc" checked>
+        <br /><br />
+
         <button onclick="getProducts()">Get Products</button>
+
+        <br /><br />
+        <div id="getquery"></div>
+
+
         <div id="products"></div>
 
         <h2>POST Product</h2>
@@ -65,7 +103,26 @@
     <script>
         // Function to make a GET request to retrieve products
         function getProducts() {
-            fetch('/products')
+
+            const sortBy = document.getElementById('sortBy').value;
+            const order = document.querySelector('input[name="order"]:checked').value;
+
+            const atg = document.createElement('a');
+            atg.textContent = `>>`; // Set the text content of the <a> element
+            atg.setAttribute('target', '_blank');
+            
+            atg.href = `${window.location.protocol}//${window.location.host}/products?sort=${sortBy}&order=${order}`;
+            atg.className = 'arrowLink'
+
+            const rst = document.getElementById('getquery');
+            rst.innerHTML =
+                `${window.location.protocol}//${window.location.host}/products?sort=${sortBy}&order=${order}`;
+            
+            rst.appendChild(atg);
+            
+
+
+            fetch(`/products?sort=${sortBy}&order=${order}`)
                 .then(response => response.json())
                 .then(data => {
                     const jsonData = document.getElementById('jsonData');
