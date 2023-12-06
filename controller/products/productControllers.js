@@ -1,19 +1,14 @@
-import firebase from "../firebase.js";
-import Product from "./productModel.js";
+import firebase from "../../firebase.js";
+import Product from "../../models/products/productModel.js";
 import uniqid from 'uniqid';
 
-import { getFirestore, collection, where, query, getDocs, doc, deleteDoc, setDoc, updateDoc, orderBy } from "firebase/firestore";
+import { getFirestore, collection, query, getDocs, doc, deleteDoc, setDoc, updateDoc, orderBy } from "firebase/firestore";
 const db = getFirestore(firebase);
 const productRef = collection(db, "products");
 
 export const getProducts = async (req, res) => {
-    //const q = query(productRef, where("id", "!=", ""),orderBy("name"));
-
-    console.log(req.query);
-    const {sort,order} = req.query;
-
+    const { sort, order } = req.query;
     const q = query(productRef, orderBy(sort, order));  // desc , asc 
-
     const querySnapshot = await getDocs(q);
     let prods = [];
     querySnapshot.forEach((doc) => {

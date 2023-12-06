@@ -69,13 +69,10 @@
         <br /><br />
 
         <button onclick="getProducts()">Get Products</button>
-
         <br /><br />
+        
         <div id="getquery"></div>
-
-
         <div id="products"></div>
-
         <h2>POST PRODUCTS</h2>
         <form method="POST" id="addForm">
             <input type="text" id="name" required placeholder="Product Name">
@@ -119,8 +116,6 @@
                 `${window.location.protocol}//${window.location.host}/products?sort=${sortBy}&order=${order}`;
             
             rst.appendChild(atg);
-            
-
 
             fetch(`/products?sort=${sortBy}&order=${order}`)
                 .then(response => response.json())
