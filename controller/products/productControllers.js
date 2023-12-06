@@ -76,8 +76,6 @@ export const updateProduct = async (req, res) => {
 
     if (data == null) res.json({ message: "update data not found!" })
 
-    console.log(data);
-
     updateDoc(docRef, data)
         .then(() => {
             console.log('Product successfully updated.');

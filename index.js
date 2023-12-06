@@ -4,6 +4,7 @@ import { getProducts, addProduct, deleteProduct, updateProduct } from "./control
 import bodyParser from 'body-parser';
 import { fileURLToPath } from 'url';
 import userRouter from './router/user/UserRouter.js';
+import tkbRoute from './router/tkb/TkbRouter.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,3 +35,4 @@ app.delete("/product/delete/:id", (req, res) => deleteProduct(req, res));
 app.put("/product/update/:id", (req, res) => updateProduct(req, res));
 
 app.use("/user",userRouter);
+app.use("/tkb",tkbRoute);

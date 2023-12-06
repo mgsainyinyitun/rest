@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>TKB ERROR</title>
+
+    <style>
+        #iframe {
+            border: 1px solid red;
+        }
+
+        h2 {
+            color: red;
+        }
+
+        body {
+            display: flex;
+            height: 95vh;
+            padding: 5px;
+            border: 1px solid green;
+            justify-content: space-between;
+        }
+
+        #form {
+            width: 100%;
+            margin-right: 1px;
+            height: 95vh;
+            overflow: scroll;
+        }
+
+        #iframe {
+            width: 100%;
+            margin-left: 1px;
+        }
+
+        #getquery {
+            width: 100%;
+            color: blue;
+        }
+
+        .arrowLink {
+            border: 1px solid blue;
+            padding: 2px;
+            text-decoration: none;
+            margin-left: 5px;
+        }
+
+        .arrowLink:hover {
+            background: teal;
+            color: white;
+        }
+
+        #addForm,#updateForm {
+            display: flex;
+            flex-direction: column;
+        }
+
+        input,
+        textarea {
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="form">
+        <h1>TKB API</h1>
+
+        <h2>GET TKB ERRORS</h2>
+        <label for="sortBy">Sort By : </label>
+        <select id="sortBy">
+            <option value="id">ID</option>
+            <option value="occureDate" selected>Occure Date</option>
+            <option value="group">Group</option>
+            <option value="server">Server</option>
+        </select> <br /><br />
+
+        <label for="ascending">Ascending</label>
+        <input type="radio" name="order" id="ascending" value="asc">
+        <label for="descending">Descending</label>
+        <input type="radio" name="order" id="descending" value="desc" checked>
+        <br /><br />
+
+        <label for="jsonFormatCheckbox">JSON Format:</label>
+        <input type="checkbox" id="jsonFormatCheckbox" name="jsonFormat">
+        <br /><br />
+
+        <button onclick="getProducts()">GET TKB ERRORS</button>
+        <br /><br />
+
+        <div id="getquery"></div>
+        <div id="products"></div>
+
+        <h2>POST TKB ERRORS</h2>
+        <form method="POST" id="addForm">
+            <input type="text" id="group" placeholder="Group">
+            <input type="text" id="server" placeholder="Server">
+            <input type="text" id="serverity" placeholder="serverity" required>
+            <textarea id="message" name="message" rows="4" cols="50" placeholder="message" required></textarea>
+            <div>
+                <input type="submit" value="ADD TKB ERROR" />
+            </div>
+        </form><br/><br/>
+
+        <h2>DELETE TKB ERROR</h2>
+        <form method="POST" id="deleteForm">
+            <input type="text" id="tkbId" placeholder="Tkb Error ID" required>
+            <input type="submit" value="Delete TKB ERROR" />
+        </form><br/><br/>
+
+        <h2>UPDATE TKB ERROR</h2>
+        <form method="post" id="updateForm">
+            <input type="text" id="updateId" placeholder="TKB Error ID" required>
+            <input type="text" id="upgroup" placeholder="Group">
+            <input type="text" id="upserver" placeholder="Server">
+            <input type="text" id="upserverity" placeholder="serverity">
+            <textarea id="upmessage" name="upmessage" rows="4" cols="50" placeholder="message"></textarea>
+            <div>
+                <input type="submit" value="EDIT TKB ERROR" />
+            </div>
+        </form>
+    </div>
+    <div id="iframe">
+        <iframe id="jsonData" width="100%" height="100%" frameborder="0"></iframe>
+    </div>
+
+    <!-- end of html -->
+
+    <script>
+        // Function to make a GET request to retrieve products
+        function getProducts() {
+
+            const sortBy = document.getElementById('sortBy').value;
+            const order = document.querySelector('input[name="order"]:checked').value;
+            const checkbox = document.getElementById('jsonFormatCheckbox');
+
+            var jsonText = "";
+            if (checkbox.checked) {
+                jsonText = "/json"
+            }
+
+            const atg = document.createElement('a');
+            atg.textContent = `>>`; // Set the text content of the <a> element
+            atg.setAttribute('target', '_blank');
+
+            atg.href = `${window.location.protocol}//${window.location.host}/tkb/all${jsonText}?sort=${sortBy}&order=${order}`;
+            atg.className = 'arrowLink'
+
+            const rst = document.getElementById('getquery');
+            rst.innerHTML =
+                `${window.location.protocol}//${window.location.host}/tkb/all${jsonText}?sort=${sortBy}&order=${order}`;
+
+            rst.appendChild(atg);
+
+            fetch(`/tkb/all${jsonText}?sort=${sortBy}&order=${order}`)
+                .then(response => response.json())
+                .then(data => {
+                    const jsonData = document.getElementById('jsonData');
+                    jsonData.src = `data:text/html, <html><body><pre>${JSON.stringify(data, null, 2)}</pre></body></html>`;
+                });
+        }
+
+        document.getElementById('addForm').
+            addEventListener("submit", (evt) => {
+                if (evt.target.method.toLowerCase() === "post") {
+                    evt.preventDefault();
+                    addProduct();
+                }
+            });
+
+        // Function to make a POST request to add a product
+        function addProduct() {
+            const group = document.getElementById('group').value;
+            const server = document.getElementById('server').value;
+            const serverity = document.getElementById('serverity').value;
+            const message = document.getElementById('message').value;
+
+            let data = { group, server, serverity, message }
+
+            for (const key in data) {
+                if (data[key] === '') {
+                    delete data[key];
+                }
+            }
+
+            fetch('/tkb/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    const jsonData = document.getElementById('jsonData');
+                    jsonData.src = `data:text/html, <html><body><pre>${JSON.stringify(data, null, 2)}</pre></body></html>`;
+                });
+        }
+
+
+        document.getElementById('deleteForm').
+            addEventListener("submit", (evt) => {
+                if (evt.target.method.toLowerCase() === "post") {
+                    evt.preventDefault();
+                    deleteProduct();
+                }
+            });
+        // Function to make a DELETE request to remove a product
+        function deleteProduct() {
+            const tkbId = document.getElementById('tkbId').value;
+            fetch(`/tkb/delete/${tkbId}`, {
+                method: 'DELETE'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const jsonData = document.getElementById('jsonData');
+                    jsonData.src = `data:text/html, <html><body><pre>${JSON.stringify(data, null, 2)}</pre></body></html>`;
+                });
+        }
+
+
+        document.getElementById('updateForm').
+            addEventListener("submit", (evt) => {
+                if (evt.target.method.toLowerCase() === "post") {
+                    evt.preventDefault();
+                    updateProduct();
+                }
+            });
+        // Function to make an UPDATE request to modify a product
+        function updateProduct() {
+            const id = document.getElementById('updateId').value;
+            const group = document.getElementById('upgroup').value;
+            const server = document.getElementById('upserver').value;
+            const serverity = document.getElementById('upserverity').value;
+            const message = document.getElementById('upmessage').value;
+
+            let data = { id, group, server, serverity, message }
+            for (const key in data) {
+                if (data[key] === '') {
+                    delete data[key];
+                }
+            }
+            let chk = {...data};
+            delete chk["id"];
+            if (Object.keys(chk).length === 0) {
+                alert("please fill at least field to update!");
+                return;
+            }
+
+            fetch(`/tkb/update/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const jsonData = document.getElementById('jsonData');
+                    jsonData.src = `data:text/html, <html><body><pre>${JSON.stringify(data, null, 2)}</pre></body></html>`;
+                });
+        }
+    </script>
+</body>
+
+</html>
