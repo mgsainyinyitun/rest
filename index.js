@@ -10,6 +10,10 @@ const __dirname = path.dirname(__filename);
 const app = express()
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    next();
+});
 
 const PORT = process.env.PORT || 3000;
 
@@ -18,8 +22,9 @@ app.listen(PORT, () => {
 })
 
 app.get("/", (req, res) => {
+    console.log("working")
     res.json({
-        message: "successfully start server",
+        message: "successfully start server modified",
     })
 })
 

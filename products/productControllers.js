@@ -1,13 +1,14 @@
-import firebase from "../firebase.js";
-import Product from "./productModel.js";
+import firebase from "../../firebase.js";
+import Product from "../../models/products/productModel.js";
 import uniqid from 'uniqid';
 
-import { getFirestore, collection, where, query, getDocs, doc, deleteDoc, setDoc, updateDoc } from "firebase/firestore";
+import { getFirestore, collection, query, getDocs, doc, deleteDoc, setDoc, updateDoc, orderBy } from "firebase/firestore";
 const db = getFirestore(firebase);
 const productRef = collection(db, "products");
 
 export const getProducts = async (req, res) => {
-    const q = query(productRef, where("id", "!=", ""));
+    const { sort, order } = req.query;
+    const q = query(productRef, orderBy(sort, order));  // desc , asc 
     const querySnapshot = await getDocs(q);
     let prods = [];
     querySnapshot.forEach((doc) => {
@@ -15,6 +16,7 @@ export const getProducts = async (req, res) => {
             doc.data().id,
             doc.data().name,
             doc.data().price,
+            doc.data().createdAt ? doc.data().createdAt : null
         )
         prods.push(product.getProduct());
     });
@@ -24,11 +26,11 @@ export const getProducts = async (req, res) => {
 };
 
 export const addProduct = async (req, res) => {
-    const productsCollection = collection(db, 'products');
     let product = new Product(
         uniqid(),
         req.body.name,
-        req.body.price
+        req.body.price,
+        new Date().toISOString()
     )
 
     setDoc(doc(db, "products", product.getProductId()), product.getProduct())
@@ -73,8 +75,6 @@ export const updateProduct = async (req, res) => {
                 } : null;
 
     if (data == null) res.json({ message: "update data not found!" })
-
-    console.log(data);
 
     updateDoc(docRef, data)
         .then(() => {
