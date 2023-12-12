@@ -3,11 +3,15 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Product API Demo</title>
+    <title>TKB ERROR</title>
 
     <style>
         #iframe {
             border: 1px solid red;
+        }
+
+        h2 {
+            color: red;
         }
 
         body {
@@ -21,6 +25,8 @@
         #form {
             width: 100%;
             margin-right: 1px;
+            height: 95vh;
+            overflow: scroll;
         }
 
         #iframe {
@@ -33,33 +39,41 @@
             color: blue;
         }
 
-        .arrowLink{
+        .arrowLink {
             border: 1px solid blue;
             padding: 2px;
             text-decoration: none;
             margin-left: 5px;
         }
 
-        .arrowLink:hover{
+        .arrowLink:hover {
             background: teal;
             color: white;
         }
 
+        #addForm,#updateForm {
+            display: flex;
+            flex-direction: column;
+        }
+
+        input,
+        textarea {
+            margin: 5px;
+        }
     </style>
 </head>
 
 <body>
     <div id="form">
-        <h1>PRODUCT API DEMO</h1>
+        <h1>TKB API</h1>
 
-        <h2>GET PRODUCTS</h2>
-
-
+        <h2>GET TKB ERRORS</h2>
         <label for="sortBy">Sort By : </label>
         <select id="sortBy">
-            <option value="name">Name</option>
-            <option value="createdAt" selected>Date</option>
-            <option value="price">Price</option>
+            <option value="id">ID</option>
+            <option value="occureDate" selected>Occure Date</option>
+            <option value="group">Group</option>
+            <option value="server">Server</option>
         </select> <br /><br />
 
         <label for="ascending">Ascending</label>
@@ -68,56 +82,78 @@
         <input type="radio" name="order" id="descending" value="desc" checked>
         <br /><br />
 
-        <button onclick="getProducts()">Get Products</button>
+        <label for="jsonFormatCheckbox">JSON Format:</label>
+        <input type="checkbox" id="jsonFormatCheckbox" name="jsonFormat">
         <br /><br />
-        
+
+        <button onclick="getProducts()">GET TKB ERRORS</button>
+        <br /><br />
+
         <div id="getquery"></div>
         <div id="products"></div>
-        <h2>POST PRODUCTS</h2>
+
+        <h2>POST TKB ERRORS</h2>
         <form method="POST" id="addForm">
-            <input type="text" id="name" required placeholder="Product Name">
-            <input type="number" id="price" placeholder="Product Price" required step="any">
-            <input type="submit" value="Add Product" />
-        </form>
+            <input type="text" id="group" placeholder="Group">
+            <input type="text" id="server" placeholder="Server">
+            <input type="text" id="serverity" placeholder="serverity" required>
+            <textarea id="message" name="message" rows="4" cols="50" placeholder="message" required></textarea>
+            <div>
+                <input type="submit" value="ADD TKB ERROR" />
+            </div>
+        </form><br/><br/>
 
-        <h2>DELETE PRODUCTS</h2>
+        <h2>DELETE TKB ERROR</h2>
         <form method="POST" id="deleteForm">
-            <input type="text" id="productId" placeholder="Product ID" required>
-            <input type="submit" value="Delete Product" />
-        </form>
+            <input type="text" id="tkbId" placeholder="Tkb Error ID" required>
+            <input type="submit" value="Delete TKB ERROR" />
+        </form><br/><br/>
 
-        <h2>UPDATE PRODUCTS</h2>
+        <h2>UPDATE TKB ERROR</h2>
         <form method="post" id="updateForm">
-            <input type="text" id="updateId" placeholder="Product ID" required>
-            <input type="text" id="updateName" placeholder="Product Name">
-            <input type="number" id="updatePrice" placeholder="Product Price" step="any">
-            <input type="submit" value="Update Product" />
+            <input type="text" id="updateId" placeholder="TKB Error ID" required>
+            <input type="text" id="upgroup" placeholder="Group">
+            <input type="text" id="upserver" placeholder="Server">
+            <input type="text" id="upserverity" placeholder="serverity">
+            <textarea id="upmessage" name="upmessage" rows="4" cols="50" placeholder="message"></textarea>
+            <div>
+                <input type="submit" value="EDIT TKB ERROR" />
+            </div>
         </form>
     </div>
     <div id="iframe">
         <iframe id="jsonData" width="100%" height="100%" frameborder="0"></iframe>
     </div>
+
+    <!-- end of html -->
+
     <script>
         // Function to make a GET request to retrieve products
         function getProducts() {
 
             const sortBy = document.getElementById('sortBy').value;
             const order = document.querySelector('input[name="order"]:checked').value;
+            const checkbox = document.getElementById('jsonFormatCheckbox');
+
+            var jsonText = "";
+            if (checkbox.checked) {
+                jsonText = "/json"
+            }
 
             const atg = document.createElement('a');
             atg.textContent = `>>`; // Set the text content of the <a> element
             atg.setAttribute('target', '_blank');
-            
-            atg.href = `${window.location.protocol}//${window.location.host}/products?sort=${sortBy}&order=${order}`;
+
+            atg.href = `${window.location.protocol}//${window.location.host}/tkb/all${jsonText}?sort=${sortBy}&order=${order}`;
             atg.className = 'arrowLink'
 
             const rst = document.getElementById('getquery');
             rst.innerHTML =
-                `${window.location.protocol}//${window.location.host}/products?sort=${sortBy}&order=${order}`;
-            
+                `${window.location.protocol}//${window.location.host}/tkb/all${jsonText}?sort=${sortBy}&order=${order}`;
+
             rst.appendChild(atg);
 
-            fetch(`/products?sort=${sortBy}&order=${order}`)
+            fetch(`/tkb/all${jsonText}?sort=${sortBy}&order=${order}`)
                 .then(response => response.json())
                 .then(data => {
                     const jsonData = document.getElementById('jsonData');
@@ -135,14 +171,25 @@
 
         // Function to make a POST request to add a product
         function addProduct() {
-            const name = document.getElementById('name').value;
-            const price = document.getElementById('price').value;
-            fetch('/product/add', {
+            const group = document.getElementById('group').value;
+            const server = document.getElementById('server').value;
+            const serverity = document.getElementById('serverity').value;
+            const message = document.getElementById('message').value;
+
+            let data = { group, server, serverity, message }
+
+            for (const key in data) {
+                if (data[key] === '') {
+                    delete data[key];
+                }
+            }
+
+            fetch('/tkb/add', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ name, price })
+                body: JSON.stringify(data)
             })
                 .then(response => response.json())
                 .then(data => {
@@ -162,8 +209,8 @@
             });
         // Function to make a DELETE request to remove a product
         function deleteProduct() {
-            const productId = document.getElementById('productId').value;
-            fetch(`/product/delete/${productId}`, {
+            const tkbId = document.getElementById('tkbId').value;
+            fetch(`/tkb/delete/${tkbId}`, {
                 method: 'DELETE'
             })
                 .then(response => response.json())
@@ -184,32 +231,30 @@
         // Function to make an UPDATE request to modify a product
         function updateProduct() {
             const id = document.getElementById('updateId').value;
-            const name = document.getElementById('updateName').value;
-            const price = document.getElementById('updatePrice').value;
+            const group = document.getElementById('upgroup').value;
+            const server = document.getElementById('upserver').value;
+            const serverity = document.getElementById('upserverity').value;
+            const message = document.getElementById('upmessage').value;
 
-            console.log(id, name, price);
-
-            var data = null;
-
-            if (name && price) {
-                data = JSON.stringify({ name, price })
-            } else if (name && !price) {
-                data = JSON.stringify({ name })
-            } else if (!name && price) {
-                data = JSON.stringify({ price })
+            let data = { id, group, server, serverity, message }
+            for (const key in data) {
+                if (data[key] === '') {
+                    delete data[key];
+                }
             }
-
-            if (data == null) {
+            let chk = {...data};
+            delete chk["id"];
+            if (Object.keys(chk).length === 0) {
                 alert("please fill at least field to update!");
                 return;
             }
 
-            fetch(`/product/update/${id}`, {
+            fetch(`/tkb/update/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: data
+                body: JSON.stringify(data)
             })
                 .then(response => response.json())
                 .then(data => {

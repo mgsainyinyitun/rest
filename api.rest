@@ -17,3 +17,49 @@ Content-Type: application/json
 {
     "price":12.8
 }
+
+
+POST  http://localhost:3000/user/signup
+Content-Type: application/json
+
+{
+    "name":"admin",
+    "role":"admin",
+    "password":"admin123"
+}
+
+
+POST  http://localhost:3000/user/login
+Content-Type: application/json
+
+{
+    "name":"admin",
+    "password":"admin123"
+}
+
+GET http://localhost:3000/user
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MDE1MTM5OTIsImV4cCI6MTcwMTUxNDE3Mn0.FXeF7ADLl7RHBHiMXTDyTCrmKZqRItiQYhiT2aTBcyQ
+
+
+POST  http://localhost:3000/tkb/add
+Content-Type: application/json
+
+{
+    "group":"SV1",
+    "server":"W3C",
+    "serverity":"error",
+    "message":".eyJuYW1lIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4JhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4JhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4"
+}
+
+GET  http://localhost:3000/tkb/all/json
+
+DELETE  http://localhost:3000/tkb/delete/8n704s0lpthbjuc
+
+PUT http://localhost:3000/tkb/update/8n701fklpth92lo
+Content-Type: application/json
+
+{
+    "message":"abcdefg",
+    "server":"s3m"
+}
