@@ -51,7 +51,8 @@
             color: white;
         }
 
-        #addForm,#updateForm {
+        #addForm,
+        #updateForm {
             display: flex;
             flex-direction: column;
         }
@@ -75,6 +76,10 @@
             <option value="group">Group</option>
             <option value="server">Server</option>
         </select> <br /><br />
+
+        <label for="dateInput">Date : </label>
+        <input type="date" id="dateInput">
+        <br /><br />
 
         <label for="ascending">Ascending</label>
         <input type="radio" name="order" id="ascending" value="asc">
@@ -101,13 +106,13 @@
             <div>
                 <input type="submit" value="ADD TKB ERROR" />
             </div>
-        </form><br/><br/>
+        </form><br /><br />
 
         <h2>DELETE TKB ERROR</h2>
         <form method="POST" id="deleteForm">
             <input type="text" id="tkbId" placeholder="Tkb Error ID" required>
             <input type="submit" value="Delete TKB ERROR" />
-        </form><br/><br/>
+        </form><br /><br />
 
         <h2>UPDATE TKB ERROR</h2>
         <form method="post" id="updateForm">
@@ -135,6 +140,16 @@
             const order = document.querySelector('input[name="order"]:checked').value;
             const checkbox = document.getElementById('jsonFormatCheckbox');
 
+
+            const selectedDate = document.getElementById("dateInput").value;
+
+            var date="";
+            if (selectedDate) {
+                // date = new Date(selectedDate).toISOString();
+                // console.log(date);
+                date = selectedDate;
+            }
+
             var jsonText = "";
             if (checkbox.checked) {
                 jsonText = "/json"
@@ -144,16 +159,16 @@
             atg.textContent = `>>`; // Set the text content of the <a> element
             atg.setAttribute('target', '_blank');
 
-            atg.href = `${window.location.protocol}//${window.location.host}/tkb/all${jsonText}?sort=${sortBy}&order=${order}`;
+            atg.href = `${window.location.protocol}//${window.location.host}/tkb/all${jsonText}?sort=${sortBy}&order=${order}&date=${date}`;
             atg.className = 'arrowLink'
 
             const rst = document.getElementById('getquery');
             rst.innerHTML =
-                `${window.location.protocol}//${window.location.host}/tkb/all${jsonText}?sort=${sortBy}&order=${order}`;
+                `${window.location.protocol}//${window.location.host}/tkb/all${jsonText}?sort=${sortBy}&order=${order}&date=${date}`;
 
             rst.appendChild(atg);
 
-            fetch(`/tkb/all${jsonText}?sort=${sortBy}&order=${order}`)
+            fetch(`/tkb/all${jsonText}?sort=${sortBy}&order=${order}&date=${date}`)
                 .then(response => response.json())
                 .then(data => {
                     const jsonData = document.getElementById('jsonData');
@@ -242,7 +257,7 @@
                     delete data[key];
                 }
             }
-            let chk = {...data};
+            let chk = { ...data };
             delete chk["id"];
             if (Object.keys(chk).length === 0) {
                 alert("please fill at least field to update!");

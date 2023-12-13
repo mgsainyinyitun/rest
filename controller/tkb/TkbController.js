@@ -7,9 +7,23 @@ import firebase from "../../firebase.js";
 const db = getFirestore(firebase);
 const tkbRef = collection(db, "tkb");
 
+
+function convertISOToYYYYMMDD(isoString) {
+    const date = new Date(isoString);
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    const formattedDate = `${year}-${month}-${day}`;
+    return formattedDate;
+}
+
+
 export const getTkbs = async (req, res) => {
-    const { sort, order } = req.query;
+    const { sort, order, date } = req.query;
     const q = query(tkbRef, orderBy(sort || "occureDate", order || "desc"));  // desc , asc 
+
     const querySnapshot = await getDocs(q);
     let tkbs = [];
     querySnapshot.forEach((doc) => {
@@ -22,16 +36,26 @@ export const getTkbs = async (req, res) => {
             doc.data().fase,
             doc.data().message
         )
-        tkbs.push(tkb.display());
+
+        if (date) {
+            if (convertISOToYYYYMMDD(tkb.occureDate) === date) {
+                tkbs.push(tkb.display());
+            }
+
+        } else {
+            tkbs.push(tkb.display());
+        }
     });
+
     res.json({
+        totalRecords:tkbs.length,
         data: tkbs
     });
 };
 
 
 export const getJsonTkbs = async (req, res) => {
-    const { sort, order } = req.query;
+    const { sort, order, date } = req.query;
     const q = query(tkbRef, orderBy(sort || "occureDate", order || "desc"));  // desc , asc 
     const querySnapshot = await getDocs(q);
     let tkbs = [];
@@ -47,9 +71,19 @@ export const getJsonTkbs = async (req, res) => {
         )
         tkbs.push(tkb.getTKBError());
     });
-    res.json({
-        data: tkbs
-    });
+
+    if (date) {
+        var ftkbs = tkbs.filter(tkb => { return convertISOToYYYYMMDD(tkb.occureDate) === date; }
+        );
+        res.json({
+            totalRecords: ftkbs.length,
+            date: ftkbs
+        })
+    } else
+        res.json({
+            totalRecords: tkbs.length,
+            data: tkbs
+        });
 };
 
 

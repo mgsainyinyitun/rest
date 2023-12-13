@@ -63,3 +63,7 @@ Content-Type: application/json
     "message":"abcdefg",
     "server":"s3m"
 }
+
+
+
+GET http://localhost:3000/tkb/all/json?sort=occureDate&order=desc&date=2023/12/13
