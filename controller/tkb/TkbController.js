@@ -77,7 +77,7 @@ export const getJsonTkbs = async (req, res) => {
         );
         res.json({
             totalRecords: ftkbs.length,
-            date: ftkbs
+            data: ftkbs
         })
     } else
         res.json({
